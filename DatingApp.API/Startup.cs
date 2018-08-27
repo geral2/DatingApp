@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DatingApp.API.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DatingApp.API
 {
@@ -28,10 +30,19 @@ namespace DatingApp.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(x=> x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
-            // services.AddDbContext<DataContext>(x=> x.UseSqlServer(Configuration.GetConnectionString("SQLConnection")));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddCors();
             services.AddScoped<IAuthRepository,AuthRepository>();
+            services.AddAuthentication( JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(option => {
+                            option.TokenValidationParameters = new   Microsoft.IdentityModel.Tokens.TokenValidationParameters(){
+                                ValidateIssuerSigningKey = true,
+                                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(Configuration.GetSection("AppSetting:Token").Value)),
+                                ValidateAudience = false,
+                                ValidateIssuer =  false
+                            };
+                    }
+                    );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,7 +58,8 @@ namespace DatingApp.API
             }
 
             app.UseHttpsRedirection();
-             app.UseCors(x=>x.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
+            app.UseCors(x=>x.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
+            app.UseAuthentication();
             app.UseMvc();
         }
     }
