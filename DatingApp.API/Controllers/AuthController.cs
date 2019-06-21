@@ -59,7 +59,7 @@ namespace DatingApp.API.Controllers
             // Payload: User info 
             var Claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, UserLogged.Id.ToString()),
+                //new Claim(ClaimTypes.NameIdentifier, UserLogged.Id.ToString()),
                 new Claim(ClaimTypes.Name, UserLogged.UserName)
             };
 

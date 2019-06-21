@@ -14,7 +14,11 @@ export class HomeComponent implements OnInit {
   }
 
   registerToogle() {
-    this.RegisterMode = !this.RegisterMode;
+    this.RegisterMode = false;
+  }
+
+  RegisterModeHomeEvent(_RegisterMode: boolean) {
+    this.RegisterMode = _RegisterMode;
   }
 
 }
